@@ -23,9 +23,6 @@ WORKDIR /var/www
 # プロジェクトファイルをコピー
 COPY . .
 
-# Laravelのキャッシュクリア（任意）
-RUN php artisan config:clear
-
 # ポート指定（Renderは自動で公開）
 EXPOSE 80
 
