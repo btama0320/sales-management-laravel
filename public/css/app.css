@@ -7,7 +7,7 @@
 .password-change-body {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  min-height: calc(100vh - 60px); /* 余白分を引く */
   background: linear-gradient(135deg, #b4ebff 0%, #b7deff 100%);
   font-family: "Segoe UI", "Hiragino Kaku Gothic ProN", sans-serif;
   margin: 0;
