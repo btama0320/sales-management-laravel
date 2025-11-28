@@ -23,6 +23,9 @@ WORKDIR /var/www
 # プロジェクトファイルをコピー
 COPY . .
 
+# Laravelの依存パッケージをインストール ← これが重要！
+RUN composer install --no-interaction --prefer-dist --optimize-autoloader
+
 # ポート指定（Renderは自動で公開）
 EXPOSE 80
 
