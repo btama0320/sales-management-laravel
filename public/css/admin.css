@@ -1,0 +1,67 @@
+.admin-body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #b4ebff 0%, #b7deff 100%);
+  font-family: "Segoe UI", "Hiragino Kaku Gothic ProN", sans-serif;
+  margin: 0;
+   padding-top: 60px;
+}
+
+main {
+  flex: 1; /* ← 余白を埋めてフッターを押し下げる */
+  display: flex;
+  justify-content: center; /* 横中央 */
+  align-items: center;     /* 縦中央 */
+  padding: 40px 20px;
+}
+
+.admin-container {
+  display: flex;
+  flex-direction: column; /* ←縦並びにする */
+  align-items: center;     /* ←中央揃えにする */
+  text-align: center;      /* ←テキストも中央揃え */
+  max-width: 720px;
+  margin: 0 auto;
+  background-color: #ffffff;
+  padding: 30px 40px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.admin-description {
+  font-size: 0.9rem;
+  color: #333;
+  margin-bottom: 24px;
+}
+
+.admin-menu {
+  margin-top: 40px;
+  display: flex;
+  flex-wrap: wrap; /* 画面が狭いとき折り返し */
+  gap: 20px;
+  justify-content: center; /* 中央揃え */
+}
+
+.admin-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 140px;
+  height: 140px;
+  background-color: #007bff;
+  color: white;
+  text-decoration: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: bold;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+
+.admin-button:hover {
+  background-color: #0056b3;
+  transform: translateY(-2px);
+}

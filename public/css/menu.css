@@ -1,0 +1,71 @@
+/* body 全体の背景やフォント */
+.admin-body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #b4ebff 0%, #b7deff 100%);
+  font-family: "Segoe UI", "Hiragino Kaku Gothic ProN", sans-serif;
+  margin: 0;
+}
+
+/* main コンテナの中央寄せ */
+main {
+  flex: 1;
+  display: flex;
+  justify-content: center; /* 横中央 */
+  align-items: center;     /* 縦中央 */
+  padding: 40px 20px;
+}
+
+/* ユーザー用コンテナ */
+.user-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  max-width: 1000px;
+  margin: 0 auto;
+  background-color: #ffffff;
+  padding: 30px 40px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* 説明文 */
+.user-description {
+  font-size: 0.9rem;
+  color: #333;
+  margin-bottom: 24px;
+}
+
+/* メニューのボタン群 */
+.user-menu {
+  margin-top: 40px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+}
+
+/* メニューボタン */
+.menu-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 140px;
+  height: 140px;
+  background-color: #007bff;
+  color: white;
+  text-decoration: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: bold;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.menu-button:hover {
+  background-color: #0056b3;
+  transform: translateY(-2px);
+}
