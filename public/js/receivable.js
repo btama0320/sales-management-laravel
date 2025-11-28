@@ -11,6 +11,37 @@ const productMaster = [
 // =====================================
 let isDraftMode = false;
 
+
+// グローバル関数
+function updateTotals() {
+  let totalCount = 0;
+  let totalAmount = 0;
+  let tax8 = 0;
+  let tax10 = 0;
+
+  document.querySelectorAll('tr.detail-row').forEach(row => {
+    const qty = parseFloat(row.querySelector('input[name*="[quantity]"]')?.value) || 0;
+    const amount = parseFloat(row.querySelector('input[name*="[amount]"]')?.value) || 0;
+
+    totalCount += qty;
+    totalAmount += amount;
+
+    const taxMark = row.querySelector('.tax-mark');
+    if (taxMark && taxMark.style.display !== 'none') {
+      tax8 += Math.floor(amount * 0.08);
+    } else {
+      tax10 += Math.floor(amount * 0.10);
+    }
+  });
+
+  const grandTotal = totalAmount + tax8 + tax10;
+  const groups = document.querySelectorAll(".totals-bar .total-group input");
+  groups[0].value = totalCount;
+  groups[1].value = "¥" + totalAmount.toLocaleString();
+  groups[2].value = "¥" + (tax8 + tax10).toLocaleString();
+  groups[3].value = "¥" + grandTotal.toLocaleString();
+}
+
 // =====================================
 // 高さ調整
 // =====================================
@@ -124,6 +155,8 @@ function setupRowCalcEvents(row) {
   }
   qty.addEventListener('input', recalc);
   price.addEventListener('input', recalc);
+
+   updateTotals();
 }
 
 // =====================================
@@ -372,7 +405,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const selected = document.querySelector('.detail-row.selected');
     if (selected) {
       selected.remove();
-      renumberRows();
+      renumberRows();          // 行番号を振り直す
+      updateTotals();          // ← 削除後に合計を再計算
     }
   });
 
