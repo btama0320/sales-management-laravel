@@ -100,6 +100,11 @@ Route::get('/invoice/receivable', [InvoiceController::class, 'receivable'])
     ->middleware('auth')
     ->name('invoice.receivable');
 
-// ======================== メニューから各種伝票入力へ ========================
 Route::resource('receivables', ReceivableController::class);
+
+// ======================== 伝票入力画面操作 ========================
+
+Route::get('/auth/menu', function () {
+    return view('auth.menu');
+})->name('menu');
 

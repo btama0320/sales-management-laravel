@@ -15,6 +15,9 @@
         <span class="label">閉じる</span><br>
         <span class="shortcut">Esc</span>
     </button>
+    <script>
+      const menuUrl = "{{ route('menu') }}";
+    </script>
     <button id="btn_new">
         <span class="label">新規</span><br>
         <span class="shortcut">F2</span>

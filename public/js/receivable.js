@@ -11,8 +11,9 @@ const productMaster = [
 // =====================================
 let isDraftMode = false;
 
-
-// グローバル関数
+// =====================================
+// totalbarの計算
+// =====================================
 function updateTotals() {
   let totalCount = 0;
   let totalAmount = 0;
@@ -352,8 +353,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // 日付連動セットアップ
   setupDateSync();
 
-  // Enter移動
+  // 指定したキーで操作
   document.addEventListener('keydown', (e) => {
+    // エンターキーを押して次に進む
     if (e.key === 'Enter') {
       e.preventDefault();
 
@@ -383,16 +385,24 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-
+    // F7で行削除
     if (e.key === 'F7') {
       e.preventDefault();
       document.getElementById('deleteRowBtn')?.click();
     }
 
+    // F8で行追加
     if (e.key === 'F8') {
       e.preventDefault();
       document.getElementById('insertRowBtn')?.click();
     }
+
+    // Escでメニューに戻る
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      document.getElementById('btn_home')?.click();
+    }
+
   });
 
   // 表の外クリック → すべて閉じる
@@ -419,4 +429,10 @@ document.addEventListener('DOMContentLoaded', () => {
       renumberRows();
     }
   });
+
+  // 閉じるボタン
+  document.getElementById('btn_home')?.addEventListener('click', () => {
+    window.location.href = menuUrl;
+  });
+
 });
