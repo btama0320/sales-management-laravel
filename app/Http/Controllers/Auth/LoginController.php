@@ -38,7 +38,9 @@ class LoginController extends Controller
 
         // 認証失敗時
         return back()->withErrors([
-            'login' => 'ログインに失敗しました',
+            'login' => '社員IDまたはパスワードが正しくありません。',
         ]);
+
+
     }
 }

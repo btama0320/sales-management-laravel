@@ -10,12 +10,20 @@
   <h2>ログイン画面</h2>
   <p>※IDとパスワードを入力してください</p>
 
-  {{-- ログアウト後のメッセージ表示 --}}
-  @if (session('status'))
-    <div class="alert-info">
-      {{ session('status') }}
-    </div>
-  @endif
+{{-- ログアウト後のメッセージ表示 --}}
+@if (session('status'))
+  <div class="alert-info">
+    {{ session('status') }}
+  </div>
+@endif
+
+{{-- ログイン失敗時のエラーメッセージ --}}
+@if ($errors->has('login'))
+  <div class="alert-error">
+    {{ $errors->first('login') }}
+  </div>
+@endif
+
 
   <form method="POST" action="{{ route('login.submit') }}" onsubmit="return validateForm()">
     @csrf

@@ -96,6 +96,19 @@
   font-size: 0.85rem;
 }
 
+/* ========================================
+   ログイン情報が間違ってた時のメッセージ
+======================================== */
+.alert-error {
+  background-color: #fdecea;
+  border: 1px solid #f5c2c7;
+  color: #b71c1c;
+  padding: 8px 12px;
+  border-radius: 6px;
+  margin-bottom: 12px;
+  font-size: 0.85rem;
+}
+
 
 /* ========================================
    ログイン画面専用
