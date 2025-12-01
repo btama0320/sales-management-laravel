@@ -12,15 +12,15 @@
 @section('content')
 <main class="user-container">
   <p class="user-description">
-    必要な操作を選択してください。新規伝票の入力はすぐに開始できます。
+    必要な操作を選択してください。
   </p>
 
   <div class="user-menu">
     <a href="{{ route('invoice.receivable') }}" class="menu-button">🧾 売掛伝票入力</a>
-    <a href="#" class="menu-button">💰 入金伝票入力</a>
-    <a href="#" class="menu-button">📦 買掛伝票入力</a>
-    <a href="#" class="menu-button">💸 支払伝票入力</a>
-    <a href="#" class="menu-button">📁 マスタ管理</a>
+    <a href="#" class="menu-button disabled">💰 入金伝票入力<span class="badge">準備中</span></a>
+    <a href="#" class="menu-button disabled">📦 買掛伝票入力 <span class="badge">準備中</span></a>
+    <a href="#" class="menu-button disabled">💸 支払伝票入力 <span class="badge">準備中</span></a>
+    <a href="#" class="menu-button disabled">📁 マスタ管理 <span class="badge">準備中</span></a>
   </div>
 </main>
 

@@ -2,7 +2,7 @@
 .admin-body {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  min-height: calc(100vh - 60px); /* 余白分を引く */
   background: linear-gradient(135deg, #b4ebff 0%, #b7deff 100%);
   font-family: "Segoe UI", "Hiragino Kaku Gothic ProN", sans-serif;
   margin: 0;
@@ -63,6 +63,21 @@ main {
   text-align: center;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.menu-button.disabled {
+  color: #aaa;
+  background: #eee;
+  pointer-events: none; /* 押せない状態 */
+}
+
+.badge {
+  background: #f0ad4e;
+  color: #fff;
+  font-size: 0.7rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-left: 6px;
 }
 
 .menu-button:hover {
