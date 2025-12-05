@@ -307,7 +307,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const $itemCodeHeader = $('#item_code_header');
   $itemCodeHeader.select2({
     ajax: {
-      url: '/sales-management/public/api/item-types/search',
+      url: '/api/item-types/search',
       dataType: 'json',
       delay: 250,
       data: function(params) {
@@ -437,7 +437,7 @@ document.addEventListener('DOMContentLoaded', () => {
       console.log('ドロップダウンが閉じたので検索開始:', searchValue);
       
       $.ajax({
-        url: '/sales-management/public/api/item-types/search',
+        url: '/api/item-types/search',
         data: { q: searchValue },
         dataType: 'json'
       }).done(function(response) {
