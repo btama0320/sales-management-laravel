@@ -1,12 +1,4 @@
 // =====================================
-// 商品マスタ（仮データ）
-// =====================================
-const productMaster = [
-  { code: 'A001', name: 'りんご', tax_rate: '8', unit_price: 120 },
-  { code: 'B002', name: '水', tax_rate: '10', unit_price: 100 }
-];
-
-// =====================================
 // グローバル変数
 // =====================================
 let isDraftMode = false;
@@ -108,7 +100,6 @@ function createEmptyRow(rowIndex = 0) {
     <td><input type="text" name="details[${rowIndex}][remarks]"></td>
   `;
   
-  // イベント設定
   setupRowCalcEvents(row);
   setupRowSelectEvents(row);
   setupLabelEvents(row);
@@ -117,35 +108,13 @@ function createEmptyRow(rowIndex = 0) {
 }
 
 // =====================================
-// 税率印・計算イベント
+// 下の明細に対するイベント
 // =====================================
 function setupRowCalcEvents(row) {
   const codeInput = row.querySelector('.code-input');
   const qty = row.querySelector('input[name*="[quantity]"]');
   const price = row.querySelector('input[name*="[unit_price]"]');
   const amount = row.querySelector('input[name*="[amount]"]');
-
-  // 商品コード入力時
-  codeInput.addEventListener('input', () => {
-    const code = codeInput.value.trim();
-    const product = productMaster.find(p => p.code === code);
-
-    if (product) {
-      row.querySelector('.name-input').value = product.name;
-      price.value = product.unit_price;
-    }
-
-    // ← ここに入れる！
-    const taxMark = row.querySelector('.tax-mark');
-    if (taxMark) {
-      const taxRate = product?.tax_rate || '10';
-      taxMark.style.display = (taxRate === '8') ? 'inline' : 'none';
-    }
-
-    if (typeof updateTotals === 'function') {
-      updateTotals();
-    }
-  });
 
   // 数量・単価 → 金額計算
   function recalc() {
@@ -157,7 +126,7 @@ function setupRowCalcEvents(row) {
   qty.addEventListener('input', recalc);
   price.addEventListener('input', recalc);
 
-   updateTotals();
+  updateTotals();
 }
 
 // =====================================
@@ -177,7 +146,6 @@ function setupLabelEvents(row) {
   const box   = row.querySelector('.label-box');
   const popup = row.querySelector('.label-popup');
 
-  // ラベル枠クリック → ポップアップ開閉
   box.addEventListener('click', (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -186,18 +154,14 @@ function setupLabelEvents(row) {
     popup.classList.toggle('show');
   });
 
-  // 色クリック
   popup.querySelectorAll('.color-option').forEach(opt => {
     opt.addEventListener('click', (e) => {
       e.stopPropagation();
 
       const color = opt.dataset.color;
-
-      // 選択枠のリセット
       popup.querySelectorAll('.color-option').forEach(o => o.classList.remove('selected-color'));
       opt.classList.add('selected-color');
 
-      // 色反映
       box.style.backgroundColor =
         color === 'red' ? '#f44336' :
         color === 'blue' ? '#2196f3' :
@@ -208,7 +172,6 @@ function setupLabelEvents(row) {
     });
   });
 
-  // ポップアップ自体クリック → 閉じる
   popup.addEventListener('click', () => {
     popup.classList.remove('show');
   });
@@ -226,7 +189,6 @@ function updateSlipStyle() {
     container.classList.add('draft-slip');
     if (saveBtnLabel) saveBtnLabel.textContent = '仮保存';
 
-    // 仮印がまだなければ追加
     if (!draftMark) {
       draftMark = document.createElement('span');
       draftMark.className = 'draft-mark';
@@ -236,8 +198,6 @@ function updateSlipStyle() {
   } else {
     container.classList.remove('draft-slip');
     if (saveBtnLabel) saveBtnLabel.textContent = '保存';
-
-    // 仮印があれば削除
     if (draftMark) draftMark.remove();
   }
 }
@@ -251,23 +211,19 @@ function setupFinalPopup() {
   
   if (!trigger || !popup) return;
 
-  // ボタンクリックでポップアップ表示
   trigger.addEventListener('click', (e) => {
     const rect = trigger.getBoundingClientRect();
-
     popup.style.top = `${rect.bottom + window.scrollY}px`;
     popup.style.left = `${rect.left + window.scrollX}px`;
     popup.style.display = popup.style.display === 'none' ? 'block' : 'none';
   });
 
-  // 他の場所をクリックしたら閉じる
   document.addEventListener('click', (e) => {
     if (popup.style.display === 'block' && !popup.contains(e.target) && !trigger.contains(e.target)) {
       popup.style.display = 'none';
     }
   });
 
-  // 各オプションの処理
   document.querySelectorAll('.final-option').forEach(button => {
     button.addEventListener('click', () => {
       const action = button.dataset.action;
@@ -304,9 +260,8 @@ function setupDateSync() {
     const slipDate = new Date(this.value);
     if (!isNaN(slipDate)) {
       const salesDate = new Date(slipDate);
-      salesDate.setDate(slipDate.getDate() + 1); // ＋1日
+      salesDate.setDate(slipDate.getDate() + 1);
 
-      // yyyy-mm-dd 形式に整形
       const yyyy = salesDate.getFullYear();
       const mm = String(salesDate.getMonth() + 1).padStart(2, '0');
       const dd = String(salesDate.getDate()).padStart(2, '0');
@@ -322,13 +277,11 @@ function setupDateSync() {
 // 初期化
 // =====================================
 document.addEventListener('DOMContentLoaded', () => {
-  // 高さ調整
   adjustDetailScrollHeight();
   window.addEventListener('resize', adjustDetailScrollHeight);
 
   const tbody = document.querySelector('.detail-scroll-container tbody');
 
-  // JSで100行追加
   if (tbody) {
     for (let i = 0; i < 100; i++) {
       tbody.appendChild(createEmptyRow(i));
@@ -336,91 +289,281 @@ document.addEventListener('DOMContentLoaded', () => {
     renumberRows();
   }
 
-  // Bladeで書いた行も含めて全行にイベント仕込み
   document.querySelectorAll('.detail-row').forEach(row => {
     setupRowCalcEvents(row);
     setupRowSelectEvents(row);
     setupLabelEvents(row);
   });
 
-  // 最初の行選択（Blade含む）
   const first = document.querySelector('.detail-row');
   if (first) first.classList.add('selected');
 
-  // 伝票機能セットアップ
   setupFinalPopup();
-  
-  // 日付連動セットアップ
   setupDateSync();
 
-  // 指定したキーで操作
-  document.addEventListener('keydown', (e) => {
-    // エンターキーを押して次に進む
+  // =====================================
+  // ✅ Select2初期化（品目コード欄）
+  // =====================================
+  const $itemCodeHeader = $('#item_code_header');
+  $itemCodeHeader.select2({
+    ajax: {
+      url: '/sales-management/public/api/item-types/search',
+      dataType: 'json',
+      delay: 250,
+      data: function(params) {
+        return { q: params.term || '' };
+      },
+      processResults: function(data) {
+        console.log('API response:', data);
+        
+        if (data && Array.isArray(data.results)) {
+          console.log('結果を返します:', data.results.length, '件');
+          
+          if (data.results.length > 0) {
+            console.log('最初のアイテム:', data.results[0]);
+          }
+          
+          // id を必ず文字列に変換
+          const formattedResults = data.results.map(item => {
+            return {
+              id: String(item.id || ''),
+              text: item.text || ''
+            };
+          });
+          
+          console.log('整形後の結果:', formattedResults);
+          
+          return { 
+            results: formattedResults
+          };
+        }
+        
+        console.error('データが不正です:', data);
+        return { results: [] };
+      },
+      error: function(xhr, status, error) {
+        console.error('AJAX Error:', error);
+        console.error('Status:', status);
+        console.error('Response:', xhr.responseText);
+      },
+      cache: true
+    },
+    placeholder: 'コード or 検索ワード',
+    minimumInputLength: 0,
+    width: '200px',
+    dropdownAutoWidth: true,
+    allowClear: true,
+    templateResult: function(item) {
+      if (!item.id) return item.text;
+      return item.text;
+    },
+    templateSelection: function(item) {
+      if (!item.id) return item.text;
+      const parts = item.text.split(' - ');
+      return parts[0];
+    }
+  });
+  
+  // フォーカス時に自動で開く
+  $itemCodeHeader.on('focus', function () {
+    $(this).select2('open');
+  });
+
+  // 開いたら検索フィールドにフォーカス
+  $itemCodeHeader.on('select2:open', function () {
+    setTimeout(() => {
+      const searchField = document.querySelector('.select2-search__field');
+      if (searchField) {
+        searchField.focus();
+      }
+    }, 50);
+  });
+
+  // 選択時の処理
+  $itemCodeHeader.on('select2:select', function (e) {
+    const data = e.params.data;
+    const parts = data.text.split(' - ');
+    const itemCode = parts[0];
+    const itemName = parts[1];
+
+    console.log('選択:', itemCode, itemName);
+    
+    document.getElementById('item_name_header').value = itemName;
+
+    setTimeout(() => {
+      document.getElementById('carrier_code')?.focus();
+    }, 100);
+  });
+
+  // =====================================
+  // ✅ コード直接入力の処理
+  // =====================================
+  let pendingSearchValue = null;
+  
+  // パターン1: Select2の検索フィールド内でEnter
+  $(document).on('keydown', '.select2-search__field', function(e) {
     if (e.key === 'Enter') {
       e.preventDefault();
-
-      // 商品コード欄ならダミーデータ呼び出し
-      if (document.activeElement.classList.contains('code-input')) {
-        const codeInput = document.activeElement;
-        const row = codeInput.closest('.detail-row');
-        const product = productMaster.find(p => p.code === codeInput.value.trim());
-
-        if (product) {
-          row.querySelector('.name-input').value = product.name;
-          row.querySelector('input[name*="[unit_price]"]').value = product.unit_price;
-        }
-
-        const taxMark = row.querySelector('.tax-mark');
-        const taxRate = product?.tax_rate || '10';
-        taxMark.style.display = (taxRate === '8') ? 'inline' : 'none';
-
-        if (typeof updateTotals === 'function') updateTotals();
+      e.stopPropagation();
+      
+      pendingSearchValue = $(this).val();
+      console.log('検索フィールドでEnter、値を保存:', pendingSearchValue);
+      
+      $itemCodeHeader.select2('close');
+    }
+  });
+  
+  // パターン2: Select2のコンテナでEnter
+  $itemCodeHeader.on('keydown', function(e) {
+    if (e.key === 'Enter') {
+      const currentValue = $(this).val();
+      console.log('Select2コンテナでEnter、現在の値:', currentValue);
+      
+      if (currentValue) {
+        pendingSearchValue = currentValue;
+        $itemCodeHeader.select2('close');
       }
+    }
+  });
 
-      // 次の入力欄へ移動（ここは1回だけでOK）
-      const inputs = Array.from(document.querySelectorAll('input, textarea'));
-      const index = inputs.indexOf(document.activeElement);
-      if (index > -1 && index < inputs.length - 1) {
-        inputs[index + 1].focus();
+  // ドロップダウンが閉じた後に検索を実行
+  $itemCodeHeader.on('select2:close', function() {
+    console.log('select2:close イベント発火、pendingSearchValue:', pendingSearchValue);
+    
+    if (pendingSearchValue) {
+      const searchValue = pendingSearchValue;
+      pendingSearchValue = null;
+      
+      console.log('ドロップダウンが閉じたので検索開始:', searchValue);
+      
+      $.ajax({
+        url: '/sales-management/public/api/item-types/search',
+        data: { q: searchValue },
+        dataType: 'json'
+      }).done(function(response) {
+        console.log('Enterでの検索結果:', response);
+        
+        if (response.results && response.results.length > 0) {
+          const match = response.results.find(item => {
+            const parts = item.text.split(' - ');
+            const itemCode = String(parts[0]).trim();
+            const searchCode = String(searchValue).trim();
+            console.log('比較:', itemCode, '===', searchCode, '→', itemCode === searchCode);
+            return itemCode === searchCode;
+          });
+          
+          const selectedItem = match || response.results[0];
+          
+          if (selectedItem) {
+            const parts = selectedItem.text.split(' - ');
+            const itemCode = parts[0];
+            const itemName = parts[1];
+            
+            console.log('選択:', itemCode, itemName);
+            
+            const newOption = new Option(itemCode, selectedItem.id, true, true);
+            $itemCodeHeader.append(newOption).trigger('change');
+            
+            document.getElementById('item_name_header').value = itemName;
+            console.log('設定完了 - コード:', itemCode, '品目名:', itemName);
+            
+            setTimeout(() => {
+              document.getElementById('carrier_code')?.focus();
+            }, 100);
+          }
+        }
+      }).fail(function(xhr, status, error) {
+        console.error('検索エラー:', error);
+      });
+    }
+  });
+
+  // =====================================
+  // キーボード操作
+  // =====================================
+  document.addEventListener('keydown', (e) => {
+    if ($('.select2-container--open').length > 0) {
+      if (e.key === 'Enter') {
+        return;
       }
     }
 
-    // F7で行削除
+    if (e.key === 'Enter') {
+      e.preventDefault();
+
+      const activeElement = document.activeElement;
+
+      if (activeElement.classList.contains('select2-search__field')) {
+        return;
+      }
+
+      const inputs = Array.from(document.querySelectorAll('input:not([readonly]), select, textarea'))
+        .filter(el => {
+          return !el.classList.contains('select2-search__field') && 
+                 el.offsetParent !== null;
+        });
+
+      const index = inputs.indexOf(activeElement);
+      if (index > -1 && index < inputs.length - 1) {
+        const nextInput = inputs[index + 1];
+        
+        if ($(nextInput).hasClass('select2-hidden-accessible')) {
+          $(nextInput).select2('open');
+        } else {
+          nextInput.focus();
+        }
+      }
+    }
+
     if (e.key === 'F7') {
       e.preventDefault();
       document.getElementById('deleteRowBtn')?.click();
     }
 
-    // F8で行追加
     if (e.key === 'F8') {
       e.preventDefault();
       document.getElementById('insertRowBtn')?.click();
     }
 
-    // Escでメニューに戻る
     if (e.key === 'Escape') {
       e.preventDefault();
+      
+      if ($('.select2-container--open').length > 0) {
+        $('.select2-hidden-accessible').select2('close');
+        return;
+      }
+      
       document.getElementById('btn_home')?.click();
     }
 
+    if (e.key === 'F11') {
+      e.preventDefault();
+
+      const trigger = document.getElementById('btn_final');
+      const popup = document.getElementById('finalPopup');
+
+      if (!trigger || !popup) return;
+
+      const rect = trigger.getBoundingClientRect();
+      popup.style.top = `${rect.bottom + window.scrollY}px`;
+      popup.style.left = `${rect.left + window.scrollX}px`;
+      popup.style.display = popup.style.display === 'none' ? 'block' : 'none';
+    }
   });
 
-  // 表の外クリック → すべて閉じる
   document.addEventListener('click', () => {
     document.querySelectorAll('.label-popup').forEach(p => p.classList.remove('show'));
   });
 
-  // 行削除
   document.getElementById('deleteRowBtn')?.addEventListener('click', () => {
     const selected = document.querySelector('.detail-row.selected');
     if (selected) {
       selected.remove();
-      renumberRows();          // 行番号を振り直す
-      updateTotals();          // ← 削除後に合計を再計算
+      renumberRows();
+      updateTotals();
     }
   });
 
-  // 行挿入
   document.getElementById('insertRowBtn')?.addEventListener('click', () => {
     const selected = document.querySelector('.detail-row.selected');
     if (selected) {
@@ -430,9 +573,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // 閉じるボタン
   document.getElementById('btn_home')?.addEventListener('click', () => {
     window.location.href = menuUrl;
   });
-
 });

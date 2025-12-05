@@ -2,6 +2,7 @@
 
 @section('body-class', 'receivable-body') {{-- 伝票入力画面用 --}}
 @section('styles')
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
   <link rel="stylesheet" href="{{ asset('css/receivable.css') }}">
 @endsection
 
@@ -116,9 +117,9 @@
         </tr>
         <tr>
           <td class="td-short">
-            <label for="item_code_header" class="td-left">品&#x3000;&#x3000;目：</label>
-            <input type="text" id="item_code_header" class="code-input-small" placeholder="コード">
-            <input type="text" id="item_name_header" class="name-input-small" placeholder="品目名" >
+            <label for="item_code_header" class="td-left">品　目：</label>
+            <select id="item_code_header" class="code-input-small" style="width:200px"></select>
+            <input type="text" id="item_name_header" class="name-input-small" placeholder="品目名" readonly>
           </td>
           <td class="td-medium">
             <label for="carrier_code">運送会社：</label>
@@ -161,67 +162,67 @@
                     <th>備考</th>
                     </tr>
                 </thead>
-            <tbody class="salesDate" id="detailRows">
-                <tr class="detail-row">
-                    <td class="label-cell">
-                        <div class="label-box"></div>
-                        <div class="label-popup">
-                        <div class="color-option" data-color=""></div>
-                        <div class="color-option" data-color="red"></div>
-                        <div class="color-option" data-color="blue"></div>
-                        <div class="color-option" data-color="green"></div>
-                        </div>
-                        <span class="row-index">1</span>
-                    </td>
+              <tbody class="salesDate" id="detailRows">
+                  <tr class="detail-row">
+                      <td class="label-cell">
+                          <div class="label-box"></div>
+                          <div class="label-popup">
+                          <div class="color-option" data-color=""></div>
+                          <div class="color-option" data-color="red"></div>
+                          <div class="color-option" data-color="blue"></div>
+                          <div class="color-option" data-color="green"></div>
+                          </div>
+                          <span class="row-index">1</span>
+                      </td>
 
-                    <td class="td-item">
-                        <div class="code-name-wrap">
-                            <div class="code-input-wrapper">
-                                <input type="text" name="details[0][item_code]" class="code-input" placeholder="コード"
-                                      value="{{ old('details.0.item_code') }}">
-                                <span class="tax-mark" style="{{ old('details.0.tax_rate') == '8' ? '' : 'display:none;' }}">※</span>
-                            </div>
-                            <input type="text" name="details[0][item_name]" class="name-input" placeholder="商品名"
-                                  value="{{ old('details.0.item_name') }}">
-                        </div>
-                    </td>
+                      <td class="td-item">
+                          <div class="code-name-wrap">
+                              <div class="code-input-wrapper">
+                                  <input type="text" name="details[0][item_code]" class="code-input" placeholder="コード"
+                                        value="{{ old('details.0.item_code') }}">
+                                  <span class="tax-mark" style="{{ old('details.0.tax_rate') == '8' ? '' : 'display:none;' }}">※</span>
+                              </div>
+                              <input type="text" name="details[0][item_name]" class="name-input" placeholder="商品名"
+                                    value="{{ old('details.0.item_name') }}">
+                          </div>
+                      </td>
 
-                    <td>
-                        <input type="text" name="details[0][package]" value="{{ old('details.0.package') }}">
-                    </td>
+                      <td>
+                          <input type="text" name="details[0][package]" value="{{ old('details.0.package') }}">
+                      </td>
 
-                    <td>
-                        <input type="text" name="details[0][unit]" value="{{ old('details.0.unit') }}">
-                    </td>
+                      <td>
+                          <input type="text" name="details[0][unit]" value="{{ old('details.0.unit') }}">
+                      </td>
 
-                    <td>
-                        <input type="text" name="details[0][grade]" value="{{ old('details.0.grade') }}">
-                    </td>
+                      <td>
+                          <input type="text" name="details[0][grade]" value="{{ old('details.0.grade') }}">
+                      </td>
 
-                    <td>
-                        <input type="text" name="details[0][class]" value="{{ old('details.0.class') }}">
-                    </td>
+                      <td>
+                          <input type="text" name="details[0][class]" value="{{ old('details.0.class') }}">
+                      </td>
 
-                    <td>
-                        <input type="number" name="details[0][quantity]" value="{{ old('details.0.quantity') }}">
-                    </td>
+                      <td>
+                          <input type="number" name="details[0][quantity]" value="{{ old('details.0.quantity') }}">
+                      </td>
 
-                    <td>
-                        <input type="number" name="details[0][unit_price]" value="{{ old('details.0.unit_price') }}">
-                    </td>
+                      <td>
+                          <input type="number" name="details[0][unit_price]" value="{{ old('details.0.unit_price') }}">
+                      </td>
 
-                    <td>
-                        <input type="number" name="details[0][amount]" value="{{ old('details.0.amount') }}">
-                    </td>
+                      <td>
+                          <input type="number" name="details[0][amount]" value="{{ old('details.0.amount') }}">
+                      </td>
 
-                    <td>
-                        <input type="text" name="details[0][remarks]" value="{{ old('details.0.remarks') }}">
-                    </td>
-                </tr>
+                      <td>
+                          <input type="text" name="details[0][remarks]" value="{{ old('details.0.remarks') }}">
+                      </td>
+                  </tr>
 
 
-                {{-- JSで行追加 --}}
-            </tbody>
+                  {{-- JSで行追加 --}}
+              </tbody>
             </table>
         </div>
 
@@ -251,5 +252,7 @@
 @endsection
 
 @section('scripts')
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
   <script src="{{ asset('js/receivable.js') }}"></script>
 @endsection

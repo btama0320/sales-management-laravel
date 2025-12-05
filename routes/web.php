@@ -12,6 +12,7 @@ use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\LogController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\ReceivableController;
+use App\Http\Controllers\ItemTypeController;
 
 
 
@@ -108,3 +109,5 @@ Route::get('/auth/menu', function () {
     return view('auth.menu');
 })->name('menu');
 
+
+Route::get('api/item-types/search', [ItemTypeController::class, 'search']);

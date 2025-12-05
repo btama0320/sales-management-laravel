@@ -15,14 +15,10 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->call(UserSeeder::class);
-
-        // // テスト用のダミーユーザー（業務用仕様に合わせる）
-        // \App\Models\User::factory()->create([
-        //     'user_id' => 'TEST001',
-        //     'password' => bcrypt('testpass'),
-        //     'must_change_password' => false,
-        // ]);
+        // $this->call(UserSeeder::class);
+        $this->call(ItemTypesTableSeeder::class);
+        $this->call(ProductsTableSeeder::class);
     }
+
 
 }
