@@ -13,17 +13,17 @@ class ItemTypesTableSeeder extends Seeder
      */
     public function run()
     {
-        // DB::table('item_types')->insert([
-        //     ['name' => '胡瓜'],
-        //     ['name' => '大根'],
-        //     ['name' => '人参'],
-        //     ['name' => '玉葱'],
-        //     ['name' => 'キャベツ'],
-        //     ['name' => 'レタス'],
-        //     ['name' => 'ゴーヤ'],
-        //     ['name' => '小松菜'],
-        //     ['name' => 'トマト'],
-        // ]);
+        DB::table('item_types')->insert([
+            ['name' => '胡瓜'],
+            ['name' => '大根'],
+            ['name' => '人参'],
+            ['name' => '玉葱'],
+            ['name' => 'キャベツ'],
+            ['name' => 'レタス'],
+            ['name' => 'ゴーヤ'],
+            ['name' => '小松菜'],
+            ['name' => 'トマト'],
+        ]);
 
         DB::table('item_types')
             ->where('name', '胡瓜')
