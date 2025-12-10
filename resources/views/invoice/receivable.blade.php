@@ -80,10 +80,13 @@
           </td>
           <td></td>
           <td class="td-right">
-            <label for="shipper_code">荷&#x3000;&#x3000;主：</label>
-            <input type="text" id="shipper_code" class="code-input-small" placeholder="コード">
-            <input type="text" id="shipper_name" class="name-input-small" placeholder="荷主名" >
+              <label for="shipper_code">荷　主：</label>
+              <input type="text" id="shipper_code" class="code-input-small"
+                    value="{{ $company->code }}" placeholder="コード">
+              <input type="text" id="shipper_name" class="name-input-small"
+                    value="{{ $company->name }}" placeholder="荷主名">
           </td>
+
         </tr>
         <tr>
           <td class="td-medium">

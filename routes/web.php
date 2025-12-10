@@ -13,6 +13,7 @@ use App\Http\Controllers\LogController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\ReceivableController;
 use App\Http\Controllers\ItemTypeController;
+use App\Http\Controllers\CompanyController;
 
 
 
@@ -108,6 +109,9 @@ Route::resource('receivables', ReceivableController::class);
 Route::get('/auth/menu', function () {
     return view('auth.menu');
 })->name('menu');
+
+// 荷主は基本自社を自動入力
+Route::get('/receivable', [CompanyController::class, 'create']);
 
 
 Route::get('api/item-types/search', [ItemTypeController::class, 'search']);
