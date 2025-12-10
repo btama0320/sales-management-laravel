@@ -283,7 +283,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const tbody = document.querySelector('.detail-scroll-container tbody');
 
   if (tbody) {
-    for (let i = 0; i < 100; i++) {
+    for (let i = 0; i < 99; i++) {
       tbody.appendChild(createEmptyRow(i));
     }
     renumberRows();
