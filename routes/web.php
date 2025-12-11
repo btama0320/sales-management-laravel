@@ -25,9 +25,9 @@ use App\Http\Controllers\CompanyController;
 
 // ======================== テスト ========================
 //伝票入力画面
-Route::get('/receivable', function () {
-    return view('invoice.receivable'); // resources/views/receivable.blade.php
-});
+// Route::get('/receivable', function () {
+//     return view('invoice.receivable'); // resources/views/receivable.blade.php
+// });
 
 // パスワード変更画面
 Route::get('/test-password-change', function () {
@@ -111,7 +111,10 @@ Route::get('/auth/menu', function () {
 })->name('menu');
 
 // 荷主は基本自社を自動入力
-Route::get('/receivable', [CompanyController::class, 'create']);
+Route::get('/invoice/receivable', [CompanyController::class, 'create'])
+    ->middleware('auth')
+    ->name('invoice.receivable');
+
 
 
 Route::get('api/item-types/search', [ItemTypeController::class, 'search']);
