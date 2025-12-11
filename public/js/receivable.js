@@ -485,7 +485,7 @@ document.addEventListener('DOMContentLoaded', () => {
     url: '/api/item-types/search',
     placeholder: 'コード',
     onSelect: data => {
-      console.log('品目選択:', data);
+      // console.log('品目選択:', data);
       $('#item_name_header').val(data.name);
       setTimeout(() => $('#carrier_code')?.focus(), 100);
     }
