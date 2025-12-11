@@ -91,8 +91,11 @@
         <tr>
           <td class="td-medium">
             <label for="customer_code" class="td-left">得&nbsp;意&nbsp;先&nbsp;：</label>
-            <input type="text" id="customer_code" class="code-input-small" placeholder="コード">
-            <input type="text" id="customer_name" class="name-input-small" placeholder="得意先名" >
+            <!-- inputからselectに変更 -->
+            <select id="customer_code" class="code-input-small">
+              <option></option>
+            </select>
+            <input type="text" id="customer_name" class="name-input-small" placeholder="得意先名" readonly>
           </td>
           <td class="td-medium">
             <label for="department">担当部署：</label>
@@ -111,8 +114,11 @@
         <tr>
           <td class="td-medium">
             <label for="billing_code" class="td-left">請&nbsp;求&nbsp;先&nbsp;：</label>
-            <input type="text" id="billing_code" class="code-input-small" placeholder="コード">
-            <input type="text" id="billing_name" class="name-input-small" placeholder="請求先名" >
+            <!-- inputからselectに変更 -->
+            <select id="billing_code" class="code-input-small">
+              <option></option>
+            </select>
+            <input type="text" id="billing_name" class="name-input-small" placeholder="請求先名" readonly>
           </td>
           <td></td>
           <td></td>

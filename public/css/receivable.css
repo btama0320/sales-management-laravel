@@ -67,6 +67,7 @@ main {
   max-width: 1400px;
   margin: auto;
   padding: 0 24px; /* ← ここに余白を移動 */
+  padding-top: 50px;
   display: flex;
   flex-direction: column;
   overflow: hidden;

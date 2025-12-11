@@ -41,12 +41,21 @@ function updateTotals() {
 function adjustDetailScrollHeight() {
   const logoutHeight   = document.querySelector('.logout-area')?.offsetHeight || 0;
   const hintHeight     = document.querySelector('.hint')?.offsetHeight || 0;
-  const headerHeight   = document.querySelector('.nav-buttons')?.offsetHeight || 0;
+
+  const header = document.querySelector('.nav-buttons');
+  let headerHeight = header?.offsetHeight || 0;
+
+  // nav-buttons がまだ描画されていない → 再計算
+  if (headerHeight === 0) {
+    setTimeout(adjustDetailScrollHeight, 50);
+    return;
+  }
+
   const formHeight     = document.querySelector('.form-table')?.offsetHeight || 0;
   const totalsHeight   = document.querySelector('.totals-bar')?.offsetHeight || 0;
 
   const reservedHeight = logoutHeight + hintHeight + headerHeight + formHeight + totalsHeight + 40;
-  const availableHeight = window.innerHeight - reservedHeight;
+  const availableHeight = Math.max(100, window.innerHeight - reservedHeight);
 
   const scrollContainer = document.querySelector('.detail-scroll-container');
   if (scrollContainer) {
@@ -273,15 +282,80 @@ function setupDateSync() {
   });
 }
 
+
+
 // =====================================
-// 初期化
+// 共通Select2初期化関数（修正版）
+// =====================================
+function initSelect2(selector, options = {}) {
+  const $el = $(selector);
+
+  $el.select2({
+    ajax: {
+      url: options.url,
+      dataType: 'json',
+      delay: 250,
+      data: params => ({ q: params.term || '' }),
+      processResults: data => {
+        if (data && Array.isArray(data.results)) {
+          return { results: data.results };
+        }
+        return { results: [] };
+      },
+      cache: true
+    },
+    placeholder: options.placeholder || '選択してください',
+    minimumInputLength: options.minLength || 0,
+    width: '30%',  // ← widthを100%に変更
+    dropdownAutoWidth: true,
+    allowClear: true,
+    // ドロップダウンの表示
+    templateResult: (item) => {
+      if (!item.id) return item.text;
+      return item.text;
+    },
+    // 選択後の表示（textの最初の部分 = コード）
+    templateSelection: item => {
+      if (!item.id) return item.text;
+      // "123 - 会社名" から "123" だけを抽出
+      const parts = item.text.split(' - ');
+      return parts[0] || item.text;
+    }
+  });
+
+  $el.on('focus', () => $el.select2('open'));
+
+  $el.on('select2:open', () => {
+    setTimeout(() => {
+      document.querySelector('.select2-search__field')?.focus();
+    }, 50);
+  });
+
+  if (options.onSelect) {
+    $el.on('select2:select', e => {
+      const data = e.params.data;
+      // textから code と name を抽出
+      const parts = data.text.split(' - ');
+      options.onSelect({
+        id: data.id,
+        code: parts[0],
+        name: parts[1] || '',
+        text: data.text
+      });
+    });
+  }
+
+  return $el;
+}
+
+// =====================================
+// 初期化処理
 // =====================================
 document.addEventListener('DOMContentLoaded', () => {
   adjustDetailScrollHeight();
   window.addEventListener('resize', adjustDetailScrollHeight);
 
   const tbody = document.querySelector('.detail-scroll-container tbody');
-
   if (tbody) {
     for (let i = 0; i < 99; i++) {
       tbody.appendChild(createEmptyRow(i));
@@ -302,206 +376,202 @@ document.addEventListener('DOMContentLoaded', () => {
   setupDateSync();
 
   // =====================================
-  // ✅ Select2初期化（品目コード欄）
+  // 荷主Select2
   // =====================================
-  const $itemCodeHeader = $('#item_code_header');
-  $itemCodeHeader.select2({
-    ajax: {
-      url: '/api/item-types/search',
-      dataType: 'json',
-      delay: 250,
-      data: function(params) {
-        return { q: params.term || '' };
-      },
-      processResults: function(data) {
-        console.log('API response:', data);
-        
-        if (data && Array.isArray(data.results)) {
-          console.log('結果を返します:', data.results.length, '件');
-          
-          if (data.results.length > 0) {
-            console.log('最初のアイテム:', data.results[0]);
-          }
-          
-          // id を必ず文字列に変換
-          const formattedResults = data.results.map(item => {
-            return {
-              id: String(item.id || ''),
-              text: item.text || ''
-            };
-          });
-          
-          console.log('整形後の結果:', formattedResults);
-          
-          return { 
-            results: formattedResults
-          };
-        }
-        
-        console.error('データが不正です:', data);
-        return { results: [] };
-      },
-      error: function(xhr, status, error) {
-        console.error('AJAX Error:', error);
-        console.error('Status:', status);
-        console.error('Response:', xhr.responseText);
-      },
-      cache: true
-    },
-    placeholder: 'コード or 検索ワード',
-    minimumInputLength: 0,
-    width: '200px',
-    dropdownAutoWidth: true,
-    allowClear: true,
-    templateResult: function(item) {
-      if (!item.id) return item.text;
-      return item.text;
-    },
-    templateSelection: function(item) {
-      if (!item.id) return item.text;
-      const parts = item.text.split(' - ');
-      return parts[0];
+  initSelect2('#shipper_code', {
+    url: '/api/customers/search',
+    placeholder: 'コード',
+    onSelect: data => {
+      $('#shipper_name').val(data.name);
     }
   });
-  
-  // フォーカス時に自動で開く
-  $itemCodeHeader.on('focus', function () {
-    $(this).select2('open');
+
+  // =====================================
+  // 得意先Select2
+  // =====================================
+  const $customerCode = initSelect2('#customer_code', {
+    url: '/api/customers/search',
+    placeholder: 'コード',
+    onSelect: data => {
+      // console.log('得意先選択:', data);
+      
+      // 得意先の名称欄に入力
+      $('#customer_name').val(data.name);
+
+      // 請求先にも同じ値を設定（selectタグなので正常に動作する）
+      const $billing = $('#billing_code');
+      const newOption = new Option(data.text, data.id, true, true);
+      $billing.empty().append(newOption).trigger('change');
+      
+      // console.log('請求先に設定した値:', $billing.val());
+      
+      // 請求先の名称も手動で設定
+      $('#billing_name').val(data.name);
+
+      setTimeout(() => $('#billing_code')?.focus(), 100);
+    }
   });
 
-  // 開いたら検索フィールドにフォーカス
-  $itemCodeHeader.on('select2:open', function () {
-    setTimeout(() => {
-      const searchField = document.querySelector('.select2-search__field');
-      if (searchField) {
-        searchField.focus();
+  // 得意先のEnter直接入力
+  let pendingCustomerSearch = null;
+
+  $customerCode.on('keydown', function(e) {
+    if (e.key === 'Enter') {
+      const currentValue = $(this).val();
+      if (currentValue) {
+        pendingCustomerSearch = currentValue;
+        $customerCode.select2('close');
       }
-    }, 50);
+    }
   });
 
-  // 選択時の処理
-  $itemCodeHeader.on('select2:select', function (e) {
-    const data = e.params.data;
-    const parts = data.text.split(' - ');
-    const itemCode = parts[0];
-    const itemName = parts[1];
+  $customerCode.on('select2:close', function() {
+    if (!pendingCustomerSearch) return;
 
-    console.log('選択:', itemCode, itemName);
-    
-    document.getElementById('item_name_header').value = itemName;
+    const searchValue = pendingCustomerSearch;
+    pendingCustomerSearch = null;
 
-    setTimeout(() => {
-      document.getElementById('carrier_code')?.focus();
-    }, 100);
+    $.ajax({
+      url: '/api/customers/search',
+      data: { q: searchValue },
+      dataType: 'json'
+    }).done(function(response) {
+      if (!response.results || response.results.length === 0) return;
+
+      const match = response.results.find(item => {
+        const code = item.text.split(' - ')[0];
+        return String(code).trim() === String(searchValue).trim();
+      });
+
+      const selected = match || response.results[0];
+      if (!selected) return;
+
+      const parts = selected.text.split(' - ');
+      const code = parts[0];
+      const name = parts[1] || '';
+
+      // 得意先に設定
+      const customerOption = new Option(selected.text, selected.id, true, true);
+      $customerCode.empty().append(customerOption).trigger('change');
+      $('#customer_name').val(name);
+
+      // 請求先にも設定
+      const billingOption = new Option(selected.text, selected.id, true, true);
+      $('#billing_code').empty().append(billingOption).trigger('change');
+      $('#billing_name').val(name);
+
+      setTimeout(() => $('#item_code_header')?.focus(), 100);
+    });
   });
 
   // =====================================
-  // ✅ コード直接入力の処理
+  // 請求先Select2
   // =====================================
-  let pendingSearchValue = null;
+  initSelect2('#billing_code', {
+    url: '/api/customers/search',
+    placeholder: 'コード',
+    onSelect: data => {
+      // console.log('請求先選択:', data);
+      $('#billing_name').val(data.name);
+    }
+  });
+
+  // =====================================
+  // 品目Select2 + Enter直接入力
+  // =====================================
+  console.log('品目Select2を初期化します');
   
-  // パターン1: Select2の検索フィールド内でEnter
-  $(document).on('keydown', '.select2-search__field', function(e) {
+  const $itemCodeHeader = initSelect2('#item_code_header', {
+    url: '/api/item-types/search',
+    placeholder: 'コード',
+    onSelect: data => {
+      console.log('品目選択:', data);
+      $('#item_name_header').val(data.name);
+      setTimeout(() => $('#carrier_code')?.focus(), 100);
+    }
+  });
+
+  console.log('品目Select2初期化完了');
+
+  // 品目のEnter直接入力
+  let pendingItemSearch = null;
+
+  $itemCodeHeader.on('keydown', function(e) {
+    console.log('品目でキー押下:', e.key, '値:', $(this).val());
+    
     if (e.key === 'Enter') {
       e.preventDefault();
       e.stopPropagation();
       
-      pendingSearchValue = $(this).val();
-      console.log('検索フィールドでEnter、値を保存:', pendingSearchValue);
-      
-      $itemCodeHeader.select2('close');
-    }
-  });
-  
-  // パターン2: Select2のコンテナでEnter
-  $itemCodeHeader.on('keydown', function(e) {
-    if (e.key === 'Enter') {
       const currentValue = $(this).val();
-      console.log('Select2コンテナでEnter、現在の値:', currentValue);
+      console.log('品目でEnter検出、値:', currentValue);
       
       if (currentValue) {
-        pendingSearchValue = currentValue;
+        pendingItemSearch = currentValue;
         $itemCodeHeader.select2('close');
       }
     }
   });
 
-  // ドロップダウンが閉じた後に検索を実行
   $itemCodeHeader.on('select2:close', function() {
-    console.log('select2:close イベント発火、pendingSearchValue:', pendingSearchValue);
+    console.log('品目Select2クローズ、pending:', pendingItemSearch);
     
-    if (pendingSearchValue) {
-      const searchValue = pendingSearchValue;
-      pendingSearchValue = null;
+    if (!pendingItemSearch) return;
+
+    const searchValue = pendingItemSearch;
+    pendingItemSearch = null;
+
+    console.log('品目Enter検索:', searchValue);
+
+    $.ajax({
+      url: '/api/item-types/search',
+      data: { q: searchValue },
+      dataType: 'json'
+    }).done(function(response) {
+      console.log('品目検索結果:', response);
       
-      console.log('ドロップダウンが閉じたので検索開始:', searchValue);
-      
-      $.ajax({
-        url: '/api/item-types/search',
-        data: { q: searchValue },
-        dataType: 'json'
-      }).done(function(response) {
-        console.log('Enterでの検索結果:', response);
-        
-        if (response.results && response.results.length > 0) {
-          const match = response.results.find(item => {
-            const parts = item.text.split(' - ');
-            const itemCode = String(parts[0]).trim();
-            const searchCode = String(searchValue).trim();
-            console.log('比較:', itemCode, '===', searchCode, '→', itemCode === searchCode);
-            return itemCode === searchCode;
-          });
-          
-          const selectedItem = match || response.results[0];
-          
-          if (selectedItem) {
-            const parts = selectedItem.text.split(' - ');
-            const itemCode = parts[0];
-            const itemName = parts[1];
-            
-            console.log('選択:', itemCode, itemName);
-            
-            const newOption = new Option(itemCode, selectedItem.id, true, true);
-            $itemCodeHeader.append(newOption).trigger('change');
-            
-            document.getElementById('item_name_header').value = itemName;
-            console.log('設定完了 - コード:', itemCode, '品目名:', itemName);
-            
-            setTimeout(() => {
-              document.getElementById('carrier_code')?.focus();
-            }, 100);
-          }
-        }
-      }).fail(function(xhr, status, error) {
-        console.error('検索エラー:', error);
+      if (!response.results || response.results.length === 0) {
+        console.log('品目が見つかりませんでした');
+        return;
+      }
+
+      // IDが完全一致するものを優先
+      const match = response.results.find(item => {
+        const itemId = item.text.split(' - ')[0];
+        return String(itemId).trim() === String(searchValue).trim();
       });
-    }
+
+      const selected = match || response.results[0];
+      console.log('品目選択:', selected);
+
+      const parts = selected.text.split(' - ');
+      const itemName = parts[1] || '';
+
+      const newOption = new Option(selected.text, selected.id, true, true);
+      $itemCodeHeader.empty().append(newOption).trigger('change');
+      $('#item_name_header').val(itemName);
+
+      setTimeout(() => $('#carrier_code')?.focus(), 100);
+    }).fail(function(error) {
+      console.error('品目検索エラー:', error);
+    });
   });
 
   // =====================================
   // キーボード操作
   // =====================================
   document.addEventListener('keydown', (e) => {
+    // Select2が開いている時はスキップ
     if ($('.select2-container--open').length > 0) {
-      if (e.key === 'Enter') {
-        return;
-      }
+      return;
     }
 
     if (e.key === 'Enter') {
       e.preventDefault();
 
       const activeElement = document.activeElement;
-
-      if (activeElement.classList.contains('select2-search__field')) {
-        return;
-      }
-
       const inputs = Array.from(document.querySelectorAll('input:not([readonly]), select, textarea'))
-        .filter(el => {
-          return !el.classList.contains('select2-search__field') && 
-                 el.offsetParent !== null;
-        });
+        .filter(el => el.offsetParent !== null);
 
       const index = inputs.indexOf(activeElement);
       if (index > -1 && index < inputs.length - 1) {
@@ -538,7 +608,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (e.key === 'F11') {
       e.preventDefault();
-
       const trigger = document.getElementById('btn_final');
       const popup = document.getElementById('finalPopup');
 

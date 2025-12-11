@@ -115,6 +115,6 @@ Route::get('/invoice/receivable', [CompanyController::class, 'create'])
     ->middleware('auth')
     ->name('invoice.receivable');
 
+// Route::get('api/item-types/search', [ItemTypeController::class, 'search']);
 
-
-Route::get('api/item-types/search', [ItemTypeController::class, 'search']);
+// Route::get('api/customers/search', [CustomerController::class, 'search']);

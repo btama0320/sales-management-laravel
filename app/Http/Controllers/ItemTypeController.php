@@ -11,7 +11,8 @@ class ItemTypeController extends Controller
     {
         $q = $request->input('q');
 
-        $items = ItemType::where('search_key_romaji', 'LIKE', "%{$q}%")
+        $items = ItemType::where('id', $q) // ← 追加！
+            ->orWhere('search_key_romaji', 'LIKE', "%{$q}%")
             ->orWhere('search_key_hiragana', 'LIKE', "%{$q}%")
             ->orWhere('search_key_katakana', 'LIKE', "%{$q}%")
             ->orWhere('name', 'LIKE', "%{$q}%")

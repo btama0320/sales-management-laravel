@@ -7,22 +7,31 @@ use App\Models\Customer;
 
 class CustomerController extends Controller
 {
+   // app/Http/Controllers/CustomerController.php
     public function search(Request $request)
     {
         $q = $request->input('q');
 
-        $items = Customer::where('code', 'LIKE', "%{$q}%")
-            ->orWhere('company_name', 'LIKE', "%{$q}%")
+        $query = Customer::query();
+
+        if (is_numeric($q)) {
+            $query->where('code', $q);
+        }
+
+        $query->orWhere('company_name', 'LIKE', "%{$q}%")
             ->orWhere('search_key_romaji', 'LIKE', "%{$q}%")
             ->orWhere('search_key_hiragana', 'LIKE', "%{$q}%")
-            ->orWhere('search_key_katakana', 'LIKE', "%{$q}%")
-            ->get(['id', 'code', 'company_name']);
+            ->orWhere('search_key_katakana', 'LIKE', "%{$q}%");
 
-        return response()->json(['results' => $items->map(function ($item) {
+        $results = $query->get(['code', 'company_name'])->map(function ($c) {
             return [
-                'id' => $item->id,
-                'text' => $item->code . ' - ' . $item->company_name,
+                'id' => $c->code,
+                'text' => "{$c->code} - {$c->company_name}",
+                'code' => $c->code,
+                'name' => $c->company_name
             ];
-        })]);
+        });
+
+        return response()->json(['results' => $results]);
     }
 }
