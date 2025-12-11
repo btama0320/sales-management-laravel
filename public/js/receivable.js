@@ -393,7 +393,7 @@ document.addEventListener('DOMContentLoaded', () => {
     url: '/api/customers/search',
     placeholder: 'コード',
     onSelect: data => {
-      // console.log('得意先選択:', data);
+      console.log('得意先選択:', data);
       
       // 得意先の名称欄に入力
       $('#customer_name').val(data.name);
@@ -403,12 +403,18 @@ document.addEventListener('DOMContentLoaded', () => {
       const newOption = new Option(data.text, data.id, true, true);
       $billing.empty().append(newOption).trigger('change');
       
-      // console.log('請求先に設定した値:', $billing.val());
+      console.log('請求先に設定した値:', $billing.val());
       
       // 請求先の名称も手動で設定
       $('#billing_name').val(data.name);
 
-      setTimeout(() => $('#billing_code')?.focus(), 100);
+      // 担当部署にフォーカス（請求先ではない）
+      setTimeout(() => {
+        const departmentInput = document.getElementById('department');
+        if (departmentInput) {
+          departmentInput.focus();
+        }
+      }, 100);
     }
   });
 
@@ -471,7 +477,7 @@ document.addEventListener('DOMContentLoaded', () => {
     url: '/api/customers/search',
     placeholder: 'コード',
     onSelect: data => {
-      // console.log('請求先選択:', data);
+      console.log('請求先選択:', data);
       $('#billing_name').val(data.name);
     }
   });
@@ -485,7 +491,7 @@ document.addEventListener('DOMContentLoaded', () => {
     url: '/api/item-types/search',
     placeholder: 'コード',
     onSelect: data => {
-      // console.log('品目選択:', data);
+      console.log('品目選択:', data);
       $('#item_name_header').val(data.name);
       setTimeout(() => $('#carrier_code')?.focus(), 100);
     }
@@ -558,10 +564,10 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // =====================================
-  // キーボード操作
+  // キーボード操作（修正版）
   // =====================================
   document.addEventListener('keydown', (e) => {
-    // Select2が開いている時はスキップ
+    // Select2が開いている時は何もしない
     if ($('.select2-container--open').length > 0) {
       return;
     }
@@ -570,13 +576,32 @@ document.addEventListener('DOMContentLoaded', () => {
       e.preventDefault();
 
       const activeElement = document.activeElement;
-      const inputs = Array.from(document.querySelectorAll('input:not([readonly]), select, textarea'))
-        .filter(el => el.offsetParent !== null);
+      
+      // Select2の要素の場合は、対応する<select>を取得
+      let currentInput = activeElement;
+      if (activeElement.classList.contains('select2-search__field')) {
+        const $select2Container = $(activeElement).closest('.select2-container');
+        const selectId = $select2Container.prev('.select2-hidden-accessible').attr('id');
+        currentInput = document.getElementById(selectId);
+      }
 
-      const index = inputs.indexOf(activeElement);
+      // 全入力要素を取得（荷主関連を除外）
+      const inputs = Array.from(document.querySelectorAll('input:not([readonly]), select, textarea'))
+        .filter(el => {
+          // 荷主関連の要素を除外
+          if (el.id === 'shipper_code' || el.id === 'shipper_name') {
+            return false;
+          }
+          // 非表示要素を除外
+          return el.offsetParent !== null && !el.classList.contains('select2-search__field');
+        });
+
+      const index = inputs.indexOf(currentInput);
+      
       if (index > -1 && index < inputs.length - 1) {
         const nextInput = inputs[index + 1];
         
+        // 次の要素がSelect2の場合
         if ($(nextInput).hasClass('select2-hidden-accessible')) {
           $(nextInput).select2('open');
         } else {
