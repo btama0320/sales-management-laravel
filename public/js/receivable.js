@@ -470,12 +470,23 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+    // =====================================
+  // 担当部署（Enter後 → 品目コードへ）
+  // =====================================
+  document.getElementById('department')?.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      $('#item_code_header').select2('open');   // ✅ Select2はopenでフォーカス
+    }
+  });
+
   // =====================================
   // 請求先Select2
   // =====================================
   initSelect2('#billing_code', {
     url: '/api/customers/search',
     placeholder: 'コード',
+    disableAutoOpen: true, // ← 追加
     onSelect: data => {
       console.log('請求先選択:', data);
       $('#billing_name').val(data.name);

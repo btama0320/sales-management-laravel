@@ -104,8 +104,8 @@
           <td>
             <label for="honorific">敬&#x3000;&#x3000;称：</label>
             <select id="honorific">
-              <option>様</option>
               <option>御中</option>
+              <option>様</option>
               <option>殿</option>
             </select>
           </td>
