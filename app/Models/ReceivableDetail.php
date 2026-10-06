@@ -13,7 +13,7 @@ class ReceivableDetail extends Model
     protected $fillable = [
         'receivable_id', 'row_no', 'item_code', 'item_name',
         'package', 'unit', 'grade', 'class',
-        'quantity', 'unit_price', 'amount', 'remarks'
+        'quantity', 'unit_price', 'amount', 'remarks', 'label_color'
     ];
 
     public function receivable()

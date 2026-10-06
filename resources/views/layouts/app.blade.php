@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
+<meta charset="UTF-8">
+<meta name="csrf-token" content="{{ csrf_token() }}">
   <title>販売管理システム</title>
   <link rel="stylesheet" href="{{ asset('css/app.css') }}">
   @yield('styles')  {{-- 子Bladeから追加CSSを受け取る --}}

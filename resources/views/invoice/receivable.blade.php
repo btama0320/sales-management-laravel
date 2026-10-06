@@ -18,6 +18,7 @@
     </button>
     <script>
       const menuUrl = "{{ route('menu') }}";
+      const newSlipUrl = "{{ route('invoice.receivable') }}";
     </script>
     <button id="btn_new">
         <span class="label">新規</span><br>
@@ -72,34 +73,75 @@
               <tr>
           <td class="td-short">
             <label for="slip_date"class="td-left">伝票日付：</label>
-            <input type="date" id="slip_date">
+            <div class="slip-date-control">
+              <input
+                type="text"
+                id="slip_date"
+                class="slip-date-text"
+                inputmode="numeric"
+                placeholder="M/D"
+                autocomplete="off"
+                value="{{ old('slip_date', $receivable->slip_date ?? '') }}">
+              <span class="slip-date-calendar-icon" aria-hidden="true">📅</span>
+              <input
+                type="date"
+                id="slip_date_picker"
+                class="slip-date-picker"
+                aria-label="カレンダーから伝票日付を選択"
+                title="カレンダーから日付を選択">
+            </div>
           </td>
           <td class="td-short">
             <label for="slip_no">伝票番号：</label>
-            <input type="text" id="slip_no">
+            <input
+                type="text"
+                id="slip_no"
+                value="{{ old('slip_no', $receivable->slip_no ?? '') }}"
+            >
+            <input type="hidden" id="receivable_id" name="id" value="{{ $receivable->id ?? '' }}">
           </td>
           <td></td>
           <td class="td-right">
               <label for="shipper_code">荷　主：</label>
-              <input type="text" id="shipper_code" class="code-input-small"
-                    value="{{ $company->code }}" placeholder="コード">
-              <input type="text" id="shipper_name" class="name-input-small"
-                    value="{{ $company->name }}" placeholder="荷主名">
+              <input 
+                type="text" 
+                id="shipper_code" 
+                class="code-input-small"
+                value="{{ $receivable->shipper_code ?? $company->code ?? '' }}">
+              <input 
+                type="text" 
+                id="shipper_name" 
+                class="name-input-small"
+                value="{{ $receivable->shipper_name ?? $company->name }}" 
+                placeholder="荷主名">
           </td>
 
         </tr>
         <tr>
           <td class="td-medium">
             <label for="customer_code" class="td-left">得&nbsp;意&nbsp;先&nbsp;：</label>
-            <!-- inputからselectに変更 -->
             <select id="customer_code" class="code-input-small">
               <option></option>
+              @if(!empty($selectedCustomer))
+                <option value="{{ $selectedCustomer->id }}" selected>
+                  {{ $selectedCustomer->code }} - {{ $selectedCustomer->company_name }}
+                </option>
+              @endif
             </select>
-            <input type="text" id="customer_name" class="name-input-small" placeholder="得意先名" readonly>
+            <input 
+              type="text" 
+              id="customer_name" 
+              class="name-input-small" 
+              value="{{ old('customer_name', $receivable->customer_name ?? '') }}"
+              placeholder="得意先名" 
+              readonly>
           </td>
           <td class="td-medium">
             <label for="department">担当部署：</label>
-            <input type="text" id="department">
+            <input 
+              type="text" 
+              id="department"
+              value="{{ old('department', $receivable->department ?? '') }}">
           </td>
           <td>
             <label for="honorific">敬&#x3000;&#x3000;称：</label>
@@ -117,8 +159,19 @@
             <!-- inputからselectに変更 -->
             <select id="billing_code" class="code-input-small">
               <option></option>
+              @if(!empty($selectedBilling))
+                <option value="{{ $selectedBilling->id }}" selected>
+                  {{ $selectedBilling->code }} - {{ $selectedBilling->company_name }}
+                </option>
+              @endif
             </select>
-            <input type="text" id="billing_name" class="name-input-small" placeholder="請求先名" readonly>
+            <input 
+              type="text" 
+              id="billing_name" 
+              class="name-input-small" 
+              value="{{ old('billing_name', $receivable->billing_name ?? '') }}"
+              placeholder="請求先名" 
+              readonly>
           </td>
           <td></td>
           <td></td>
@@ -127,13 +180,38 @@
         <tr>
           <td class="td-short">
             <label for="item_code_header" class="td-left">品　目：</label>
-            <select id="item_code_header" class="code-input-small" style="width:200px"></select>
-            <input type="text" id="item_name_header" class="name-input-small" placeholder="品目名" readonly>
+            <select id="item_code_header" class="code-input-small">
+              <option></option>
+              @if(!empty($selectedItem))
+                <option value="{{ $selectedItem->id }}" selected>
+                  {{ $selectedItem->id }} - {{ $selectedItem->name }}
+                </option>
+              @endif
+            </select>
+            <input 
+              type="text" 
+              id="item_name_header" 
+              class="name-input-small" 
+              value="{{ old('item_name_header', $receivable->item_name_header ?? '') }}"
+              placeholder="品目名" 
+              readonly>
           </td>
           <td class="td-medium">
             <label for="carrier_code">運送会社：</label>
-            <input type="text" id="carrier_code" class="code-input-small" placeholder="コード">
-            <input type="text" id="carrier_name" class="name-input-small" placeholder="運送会社名" >
+            <select id="carrier_code" class="code-input-small">
+              <option></option>
+              @if(!empty($selectedCarrier))
+                <option value="{{ $selectedCarrier->code }}" selected>
+                  {{ $selectedCarrier->code }} - {{ $selectedCarrier->name }}
+                </option>
+              @endif
+            </select>
+            <input 
+              type="text" 
+              id="carrier_name" 
+              class="name-input-small" 
+              value="{{ old('carrier_name', $receivable->carrier_name ?? '') }}"
+              placeholder="運送会社名" >
           </td>
           <td class="td-medium"></td>
           <td></td>
@@ -141,11 +219,20 @@
         <tr>
           <td class="td-xlong">
             <label for="summary" class="td-left">摘&#x3000;&#x3000;要：</label>
-            <input type="text" id="summary">
+            <input 
+              type="text" 
+              id="summary" 
+              class="name-input-small" 
+              value="{{ old('summary', $receivable->summary ?? '') }}"
+              placeholder="摘要">
           </td>
           <td class="td-short">
             <label for="sales_date">販&nbsp;売&nbsp;日：</label>
-            <input type="date" id="sales_date">
+            <input 
+              type="date" 
+              id="sales_date" 
+              class="date-input-small" 
+              value="{{ old('sales_date', $receivable->sales_date ?? '') }}"> 
           </td>
           <td class="td-medium"></td>
           <td></td>
@@ -172,7 +259,21 @@
                     </tr>
                 </thead>
               <tbody class="salesDate" id="detailRows">
-                  <tr class="detail-row">
+                @php
+                    // 入力エラー時は入力値を優先し、通常はDBの明細を表示する
+                    $detailRows = old('details', $receivable->details->toArray());
+                    if (count($detailRows) === 0) {
+                        $detailRows = [[]];
+                    }
+                @endphp
+                @foreach ($detailRows as $i => $detailRow)
+                  @php
+                      $itemCode = data_get($detailRow, 'item_code', '');
+                      $itemName = data_get($detailRow, 'item_name', '');
+                      $taxRate = data_get($detailRow, 'tax_rate', '10');
+                      $labelColor = data_get($detailRow, 'label_color', '');
+                  @endphp
+                  <tr class="detail-row" data-label-color="{{ $labelColor }}">
                       <td class="label-cell">
                           <div class="label-box"></div>
                           <div class="label-popup">
@@ -181,53 +282,58 @@
                           <div class="color-option" data-color="blue"></div>
                           <div class="color-option" data-color="green"></div>
                           </div>
-                          <span class="row-index">1</span>
+                          <span class="row-index">{{ $i + 1 }}</span>
                       </td>
 
                       <td class="td-item">
                           <div class="code-name-wrap">
                               <div class="code-input-wrapper">
-                                  <input type="text" name="details[0][item_code]" class="code-input" placeholder="コード"
-                                        value="{{ old('details.0.item_code') }}">
-                                  <span class="tax-mark" style="{{ old('details.0.tax_rate') == '8' ? '' : 'display:none;' }}">※</span>
+                                  <select name="details[{{ $i }}][item_code]" class="code-select">
+                                      <option></option>
+                                      @if($itemCode !== '')
+                                          <option value="{{ $itemCode }}" selected>{{ $itemCode }}</option>
+                                      @endif
+                                  </select>
+                                <span class="tax-mark" style="{{ (string) $taxRate === '8' ? '' : 'display:none;' }}">※</span>
                               </div>
-                              <input type="text" name="details[0][item_name]" class="name-input" placeholder="商品名"
-                                    value="{{ old('details.0.item_name') }}">
+                          <input type="text" name="details[{{ $i }}][item_name]" class="name-input" placeholder="商品名"
+                                    value="{{ old('details.'.$i.'.item_name', $itemName) }}">
                           </div>
                       </td>
 
                       <td>
-                          <input type="text" name="details[0][package]" value="{{ old('details.0.package') }}">
+                          <input type="text" name="details[{{ $i }}][package]" value="{{ old('details.'.$i.'.package', data_get($detailRow, 'package', '')) }}">
                       </td>
 
                       <td>
-                          <input type="text" name="details[0][unit]" value="{{ old('details.0.unit') }}">
+                          <input type="text" name="details[{{ $i }}][unit]" value="{{ old('details.'.$i.'.unit', data_get($detailRow, 'unit', '')) }}">
                       </td>
 
                       <td>
-                          <input type="text" name="details[0][grade]" value="{{ old('details.0.grade') }}">
+                          <input type="text" name="details[{{ $i }}][grade]" value="{{ old('details.'.$i.'.grade', data_get($detailRow, 'grade', '')) }}">
                       </td>
 
                       <td>
-                          <input type="text" name="details[0][class]" value="{{ old('details.0.class') }}">
+                          <input type="text" name="details[{{ $i }}][class]" value="{{ old('details.'.$i.'.class', data_get($detailRow, 'class', '')) }}">
                       </td>
 
                       <td>
-                          <input type="number" name="details[0][quantity]" value="{{ old('details.0.quantity') }}">
+                          <input type="number" name="details[{{ $i }}][quantity]" value="{{ old('details.'.$i.'.quantity', data_get($detailRow, 'quantity', '')) }}">
                       </td>
 
                       <td>
-                          <input type="number" name="details[0][unit_price]" value="{{ old('details.0.unit_price') }}">
+                          <input type="number" name="details[{{ $i }}][unit_price]" value="{{ old('details.'.$i.'.unit_price', data_get($detailRow, 'unit_price', '')) }}">
                       </td>
 
                       <td>
-                          <input type="number" name="details[0][amount]" value="{{ old('details.0.amount') }}">
+                          <input type="number" name="details[{{ $i }}][amount]" value="{{ old('details.'.$i.'.amount', data_get($detailRow, 'amount', '')) }}">
                       </td>
 
                       <td>
-                          <input type="text" name="details[0][remarks]" value="{{ old('details.0.remarks') }}">
+                          <input type="text" name="details[{{ $i }}][remarks]" value="{{ old('details.'.$i.'.remarks', data_get($detailRow, 'remarks', '')) }}">
                       </td>
                   </tr>
+                @endforeach
 
 
                   {{-- JSで行追加 --}}

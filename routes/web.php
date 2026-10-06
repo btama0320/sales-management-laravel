@@ -102,6 +102,9 @@ Route::get('/invoice/receivable', [InvoiceController::class, 'receivable'])
     ->middleware('auth')
     ->name('invoice.receivable');
 
+Route::get('/receivables/find-by-slip-no', [ReceivableController::class, 'findBySlipNo'])
+    ->name('receivables.findBySlipNo');
+
 Route::resource('receivables', ReceivableController::class);
 
 // ======================== 伝票入力画面操作 ========================

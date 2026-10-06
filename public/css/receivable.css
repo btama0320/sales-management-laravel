@@ -167,9 +167,9 @@ h1 {
 .form-table .code-input-small {
   height: 24px; 
   padding: 4px;  
-  width: 80px;
-  min-width: 80px;
-  max-width: 80px;
+  width: 68px;
+  min-width: 68px;
+  max-width: 68px;
   flex-shrink: 0;
   flex-grow: 0;
   box-sizing: border-box;
@@ -183,7 +183,7 @@ h1 {
 .form-table .name-input-small {
   flex-grow: 1;
   flex-shrink: 1;
-  min-width: 100px;
+  min-width: 120px;
   width: auto;
   box-sizing: border-box;
   padding: 6px;
@@ -710,4 +710,34 @@ h1 {
   font-size: 0.8rem;
   color: #666;
   margin-top: 8px;
+}
+
+/* 伝票日付: 手入力とネイティブカレンダー */
+.form-table .slip-date-control {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.form-table .slip-date-text {
+  width: 100%;
+  min-width: 0 !important;
+  padding-right: 30px !important;
+}
+.form-table .slip-date-calendar-icon {
+  position: absolute;
+  right: 8px;
+  pointer-events: none;
+  font-size: 14px;
+}
+.form-table .slip-date-picker {
+  position: absolute;
+  inset: 0 0 0 auto;
+  width: 30px;
+  min-width: 0 !important;
+  height: 100%;
+  padding: 0 !important;
+  opacity: 0;
+  cursor: pointer;
 }
